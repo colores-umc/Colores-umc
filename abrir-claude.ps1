@@ -1,7 +1,8 @@
 # Launcher para modificar la pagina de Colores con Claude Code (extension de VS Code).
-# Levanta un mini servidor HTTP en PowerShell puro, abre el navegador,
-# y abre VS Code en una ventana nueva apuntando al repo.
-# Al apretar cualquier tecla en esta ventana, apaga el servidor y cierra todo.
+# - Levanta un mini servidor HTTP en PowerShell puro (mismo proceso, via runspace).
+# - Abre el navegador en localhost.
+# - Abre VS Code en una ventana nueva apuntando a la carpeta del repo.
+# Al apretar cualquier tecla apaga el servidor y cierra.
 
 $ErrorActionPreference = 'Continue'
 $repoPath = $PSScriptRoot
@@ -21,7 +22,6 @@ function Write-Header {
 function Find-VSCode {
     $cmd = Get-Command code -ErrorAction SilentlyContinue
     if ($cmd) { return $cmd.Source }
-
     $candidates = @(
         "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd"
         "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd"
@@ -45,23 +45,6 @@ function Stop-PortProcess([int]$portNumber) {
     } catch { }
 }
 
-function Wait-ForPort([int]$portNumber, [int]$timeoutSec = 10) {
-    $start = Get-Date
-    while (((Get-Date) - $start).TotalSeconds -lt $timeoutSec) {
-        $tcp = New-Object Net.Sockets.TcpClient
-        try {
-            $tcp.Connect("127.0.0.1", $portNumber)
-            $tcp.Close()
-            return $true
-        } catch {
-            Start-Sleep -Milliseconds 200
-        } finally {
-            $tcp.Dispose()
-        }
-    }
-    return $false
-}
-
 Write-Header
 
 # Verificar VS Code
@@ -78,39 +61,89 @@ if (-not $vscodePath) {
 # Liberar puerto si quedo ocupado
 Stop-PortProcess -portNumber $port
 
-# Levantar mini server PowerShell en proceso oculto
-Write-Host "Levantando preview local en $url ..." -ForegroundColor Yellow
-$serveScript = Join-Path $repoPath 'serve-local.ps1'
+# Crear el listener en el thread principal: asi podemos pararlo desde aca
+# y forzar que el runspace salga del while loop.
+$listener = New-Object System.Net.HttpListener
+$listener.Prefixes.Add("http://localhost:$port/")
+$listener.Prefixes.Add("http://127.0.0.1:$port/")
 
-$server = Start-Process powershell `
-    -ArgumentList @(
-        "-NoProfile",
-        "-ExecutionPolicy","Bypass",
-        "-File",$serveScript,
-        "-Port",$port,
-        "-Root",$repoPath
-    ) `
-    -WindowStyle Hidden -PassThru
-
-# Esperar a que el puerto este escuchando
-$ready = Wait-ForPort -portNumber $port -timeoutSec 10
-if (-not $ready) {
-    Write-Host "ERROR: el preview local no arranco. Avisa a Gaston." -ForegroundColor Red
+try {
+    $listener.Start()
+} catch {
+    Write-Host "ERROR levantando el preview local: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Posibles causas: antivirus o firewall bloqueando localhost." -ForegroundColor Yellow
     Write-Host ""
     Write-Host "Apreta una tecla para cerrar..." -ForegroundColor Yellow
     [Console]::ReadKey($true) | Out-Null
-    if ($server -and -not $server.HasExited) {
-        Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue
-    }
     exit 1
 }
+
+Write-Host "Preview local levantado en $url" -ForegroundColor Green
+
+# Mime map - lo pasamos al runspace por valor
+$mimeMap = @{
+    '.html'='text/html; charset=utf-8'; '.htm'='text/html; charset=utf-8'
+    '.css'='text/css; charset=utf-8'; '.js'='application/javascript; charset=utf-8'
+    '.json'='application/json; charset=utf-8'; '.xml'='application/xml; charset=utf-8'
+    '.txt'='text/plain; charset=utf-8'; '.png'='image/png'
+    '.jpg'='image/jpeg'; '.jpeg'='image/jpeg'; '.gif'='image/gif'
+    '.webp'='image/webp'; '.svg'='image/svg+xml'; '.ico'='image/x-icon'
+    '.bmp'='image/bmp'; '.woff'='font/woff'; '.woff2'='font/woff2'
+    '.ttf'='font/ttf'; '.otf'='font/otf'; '.eot'='application/vnd.ms-fontobject'
+    '.pdf'='application/pdf'; '.mp4'='video/mp4'; '.webm'='video/webm'
+    '.mp3'='audio/mpeg'; '.wav'='audio/wav'
+}
+
+# Worker que atiende requests. El listener se le pasa por argumento y lo
+# para el thread principal cuando termina, lo que rompe GetContext().
+$workerScript = {
+    param($listener, $Root, $mimeMap)
+    while ($listener.IsListening) {
+        try {
+            $context = $listener.GetContext()
+            $request = $context.Request
+            $response = $context.Response
+
+            $rel = [System.Net.WebUtility]::UrlDecode($request.Url.LocalPath).TrimStart('/')
+            if ([string]::IsNullOrEmpty($rel)) { $rel = 'index.html' }
+            $filePath = Join-Path $Root $rel
+            if (Test-Path $filePath -PathType Container) {
+                $filePath = Join-Path $filePath 'index.html'
+            }
+
+            if (Test-Path $filePath -PathType Leaf) {
+                $bytes = [System.IO.File]::ReadAllBytes($filePath)
+                $ext = [System.IO.Path]::GetExtension($filePath).ToLower()
+                $mime = $mimeMap[$ext]
+                if (-not $mime) { $mime = 'application/octet-stream' }
+                $response.ContentType = $mime
+                $response.ContentLength64 = $bytes.Length
+                $response.StatusCode = 200
+                $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            } else {
+                $response.StatusCode = 404
+            }
+            $response.OutputStream.Close()
+        } catch {
+            # GetContext lanza excepcion cuando se para el listener: salimos limpio
+            if (-not $listener.IsListening) { break }
+        }
+    }
+}
+
+$runspace = [runspacefactory]::CreateRunspace()
+$runspace.Open()
+$psInstance = [powershell]::Create()
+$psInstance.Runspace = $runspace
+[void]$psInstance.AddScript($workerScript).AddArgument($listener).AddArgument($repoPath).AddArgument($mimeMap)
+$asyncResult = $psInstance.BeginInvoke()
 
 # Abrir navegador
 Write-Host "Abriendo navegador..." -ForegroundColor Yellow
 Start-Process $url
 Start-Sleep -Milliseconds 500
 
-# Abrir VS Code en nueva ventana, apuntando explicitamente a la carpeta del repo
+# Abrir VS Code en ventana nueva apuntando al repo
 Write-Host "Abriendo Visual Studio Code en $repoPath ..." -ForegroundColor Yellow
 & $vscodePath --new-window $repoPath
 
@@ -128,27 +161,35 @@ Write-Host "Si te gusta, deci a Claude: subilo  o  publicalo" -ForegroundColor C
 Write-Host "Si no te gusta, deci: sacalo  o  volve como estaba" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "========================================" -ForegroundColor DarkGray
-Write-Host "Cuando termines de trabajar, apreta cualquier tecla aca para apagar el preview." -ForegroundColor Yellow
+Write-Host "Cuando termines, apreta cualquier tecla aca para apagar el preview." -ForegroundColor Yellow
 Write-Host "(VS Code y el navegador podes cerrarlos normalmente cuando quieras)" -ForegroundColor DarkGray
 Write-Host "========================================" -ForegroundColor DarkGray
 Write-Host ""
 
-# Esperar tecla con [Console]::ReadKey (mas confiable que $Host.UI.RawUI.ReadKey)
+# Esperar tecla
 try {
     [Console]::ReadKey($true) | Out-Null
 } catch {
-    # Si no hay consola interactiva (raro), igual seguimos al cleanup
-    Write-Host "No detecto teclado, cerrando en 5 segundos..." -ForegroundColor Yellow
     Start-Sleep -Seconds 5
 }
 
 Write-Host ""
 Write-Host "Apagando preview local..." -ForegroundColor Yellow
 
-# Cleanup
-if ($server -and -not $server.HasExited) {
-    Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue
+# Cleanup ordenado: primero parar el listener (lo cual rompe GetContext en el runspace),
+# despues limpiar runspace y psInstance, despues forzar puerto libre.
+try { $listener.Stop() } catch { }
+try { $listener.Close() } catch { }
+
+# Le damos un margen al runspace para que termine solo
+$timeout = (Get-Date).AddSeconds(2)
+while (-not $asyncResult.IsCompleted -and (Get-Date) -lt $timeout) {
+    Start-Sleep -Milliseconds 100
 }
+
+try { $psInstance.Dispose() } catch { }
+try { $runspace.Close() } catch { }
+try { $runspace.Dispose() } catch { }
 Stop-PortProcess -portNumber $port
 
 Write-Host "Listo. Hasta la proxima!" -ForegroundColor Green
