@@ -1,0 +1,181 @@
+# Cambios a realizar en la pagina 📝
+
+Acá meteremos todos los cambios que se deben hacer en los archivos al subir una nueva modificacion con boostrap, 
+a continuacion se muestra como se debe proceder para implementar un cambio en boostrap:
+
+
+
+1) Descargar la version mas reciente del proyecto con git pull
+si te da problemas por merge (tenias cambios en tu equipo) hace: git stash y despues git pull, ahi le decis a git que se cague en tus cambios y solo descargue lo que este en la pagina
+
+
+
+2) Trabajar con boostrap y hacer los cambios que se quieran realizar
+2.1) Si no tenes licencia entrar a https://bootstrapstudio.io/student-pack
+2.2) Ingresar con perfil de git hub pro
+2.3) Te da un numero de licencia, copiar pegar y listo.
+
+
+
+3) Guardar el boostrap
+
+
+
+4) Borrar todos los archivos de la carpeta salvo boostrap, readme, cname, los posibles pdf que se encuentren, el 404.html, robotito.jpg y cambios.txt (este archivo)
+
+
+
+5) Consola: git add -A
+	    git commit -m "mensaje que se quiera poner según los cambios realizados"
+	    git push
+(si hubo merge llamar a mati porque hay que modificar los archivos para indicarle a github que cambios queremos guardar y cuales no, usualmente se borran los archivos que salen del merge igualmente).
+
+
+
+6) Desde boostrap exportar los cambios a los archivos del proyecto en esta carpeta
+6.1) Setear la carpeta
+6.2) Export y save
+
+
+7) Realizar los cambios que se listan en "LISTA DE CAMBIOS" (al final de este archivo) para cada archivo.
+
+
+
+7) Guardar todos los archivos modificados.
+
+
+
+8) Consola: git add -A
+	    git commit -m "mensaje que se quiera poner según los cambios realizados"
+	    git pull
+	    (si hubo merge contactarse con mati, sino continuar)
+	    git push.
+
+
+
+------------------------------------------------------------
+LISTA DE CAMBIOS:
+
+Aquí se han de listar los cambios a realizar, ordenarlos por archivo siendo lo mas puntilloso posible para encontrar donde se ha de incorporar (no referirse a números de lineas concretas de código)
+
+
+
+ 🔵 EN TODOS LOS ARCHIVOS .html:
+
+1) Poner Colores donde diga home-brand o similar.
+------------------------------------------------------------
+
+
+(dudoso)
+2) En donde haya un footer es importante poner estas lineas dentro de los "" de style luego de los parametros que ya existan en ese estilo: "position:absolute; bottom:0; width:100%;" (sin "") esto es para que el footer este abajo de todo siempre para todas las resoluciones de pantallas y zoom aplicados.
+------------------------------------------------------------
+
+
+3) Poner como primer elemento del head lo siguiente:
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-174184615-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-174184615-1');
+</script>
+-----------------------------------------------------------------
+
+
+
+ 🔵 armado.html:
+
+1) Poner en acrilicos --> catalogo --> esto:
+
+            <div class="acrilicospdf">  
+                <iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=h30gmf3xu3" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+            </div>
+
+Deberia quedar asi:
+
+        <div class="heading">
+            <h2 class="text-left"><br><em>Catalogo:&nbsp;</em><br></h2>
+            <div class="acrilicospdf">  
+                <iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=h30gmf3xu3" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+            </div>
+        </div>
+-----------------------------------------------------------------
+
+
+2) Poner en cadenas --> catalogo --> esto:
+
+                <div class="cadenaspdf">  
+			<iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=7xjl1kt4ot" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+                </div>
+
+Deberia quedar asi:
+
+        <div class="heading">
+            <h2 class="text-left"><br><em>Catálogo:&nbsp;</em><br></h2>
+            <div class="cadenaspdf">  
+                <iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=7xjl1kt4ot" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+            </div>
+        </div>
+-----------------------------------------------------------------
+
+
+3) Poner en dijes --> catalogo --> esto:
+
+            <div class="caracoles">  
+                <iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=v1kfxc1wb1" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+            </div>
+            <div class="dijespdf">  
+                <iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=hplwnijd1j" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+            </div>
+
+Deberia quedar asi:
+
+        <div class="heading">
+            <h2 class="text-left"><br><em>Catálogos:&nbsp;</em><br></h2>
+            <div class="caracoles">  
+                <iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=v1kfxc1wb1" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+            </div>
+            <div class="dijespdf">  
+                <iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=hplwnijd1j" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+            </div>
+        </div>
+-----------------------------------------------------------------
+
+
+4) Poner en maderitas --> catalogo --> esto:
+
+                <div class="maderitas">  
+                    <iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=tufd80funf" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+                </div>
+
+Deberia quedar asi:
+
+	<div class="heading">
+                <h2 class="text-center d-flex justify-content-center align-items-center">&nbsp;<br><br></h2>
+                <h2 class="text-truncate text-center d-flex justify-content-center align-items-center"><br><br><img src="assets/img/index/linea.jpg" style="padding: 0px;height: 30px;">&nbsp;Maderitas&nbsp;<img src="assets/img/index/linea.jpg" style="padding: 0px;height: 30px;"><br><br></h2>
+                <div class="maderitas">  
+                    <iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=tufd80funf" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+                </div>
+        </div>
+-----------------------------------------------------------------
+
+
+5) Poner en insumos varios --> catalogo --> esto:
+
+                <div class="caracoles">  
+			<iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=7k8yp3nvxn" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+                </div>
+
+Deberia quedar asi:
+
+        <div class="heading">
+            <h2 class="text-left"><br><em>Catálogo:&nbsp;</em><br></h2>
+            <div class="caracoles">  
+                <iframe src="https://cdn.flipsnack.com/widget/v2/widget.html?hash=7k8yp3nvxn" width="100%" height="480" seamless="seamless" scrolling="no" frameBorder="0" allowFullScreen></iframe>
+            </div>
+        </div>
+-----------------------------------------------------------------
+

@@ -1,0 +1,25 @@
+# Sistema operativo
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*~
+
+# Backups locales (no subir al repo)
+_backup_originales/
+*.bak
+*.zip
+
+# Claude Code: settings personales del usuario (no compartir)
+.claude/settings.local.json
+
+# Archivo fuente de Bootstrap Studio (pesado y binario, no necesario en el repo)
+*.bsdesign
+
+# Archivos temporales
+*.tmp
+*.log

@@ -1,0 +1,136 @@
+.text-primary {
+  color: #8ed3c2!important;
+}
+
+.btn-primary:active, .btn-primary:focus, .btn-primary:hover {
+  background-color: #212529!important;
+  border-color: #ffffff!important;
+  color: #8ed3c2;
+}
+
+#portfolio .portfolio-item .portfolio-link .portfolio-hover {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transition: all .5s ease;
+  opacity: 0;
+  background: rgb(142,211,194);
+}
+
+.btn-primary:not(:disabled):not(.disabled).active, .btn-primary:not(:disabled):not(.disabled):active, .show > .btn-primary.dropdown-toggle {
+  color: #212529;
+  background-color: #8ed3c2;
+  border-color: #8ed3c2;
+}
+
+.btn-primary:hover {
+  color: #ffffff;
+  background-color: #8ed3c2;
+  border-color: #8ed3c2;
+}
+
+.btn-gaston {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #8ed3c2;
+  background-image: url("../../assets/img/index/categorias/merceria3.jpeg");
+}
+
+.rounded {
+  border-radius: 2rem!important;
+}
+
+a:hover {
+  color: #8ed3c2;
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #8ed3c2;
+}
+
+a {
+  color: #8ed3c2;
+}
+
+.btn-primary:active, .btn-primary:focus {
+  box-shadow: 0 0 0 .2rem rgb(142,211,194)!important;
+}
+
+ul.social-buttons li a:active, ul.social-buttons li a:focus, ul.social-buttons li a:hover {
+  background-color: rgb(142,211,194);
+}
+
+.btn-gastonideas:hover {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #ffffff;
+  background-image: url("../../assets/img/index/categorias/trampa.png");
+}
+
+.btn-gastonideas {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #8ed3c2;
+  background-image: url("../../assets/img/index/categorias/talleres2.jpg");
+}
+
+.btn-gastonsiete {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #8ed3c2;
+  background-image: url("../../assets/img/index/categorias/tejidos.jpg");
+}
+
+.btn-gastonsiete:hover {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #ffffff;
+  background-image: url("../../assets/img/index/categorias/trampa.png");
+}
+
+.btn-gastonmanualidades:hover {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #ffffff;
+  background-image: url("../../assets/img/index/categorias/trampa.png");
+}
+
+.btn-gastonmanualidades {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #8ed3c2;
+  background-image: url("../../assets/img/index/categorias/regaleria.jpeg");
+}
+
+.btn-gaston:hover {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #ffffff;
+  background-image: url("../../assets/img/index/categorias/trampa.png");
+}
+
+@media (min-width:1px) {
+  .d-xl-flex {
+    display: -ms-flexbox!important;
+    display: flex!important;
+    padding-top: 500px;
+  }
+}
+
+@media (min-width:520px) {
+  .justify-content-xl-center {
+    -ms-flex-pack: center!important;
+    justify-content: center!important;
+    padding-top: 0;
+  }
+}
+
+@media (min-width:710px) {
+  .justify-content-xl-center {
+    -ms-flex-pack: center!important;
+    justify-content: center!important;
+    padding-top: 150px;
+  }
+}
+

@@ -1,0 +1,39 @@
+#mainNav .navbar-nav .nav-item .nav-link.active, #mainNav .navbar-nav .nav-item .nav-link:hover {
+  color: rgb(142,211,194);
+}
+
+.btn-gastoninsumos {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #8ed3c2;
+  background-image: url("../../assets/img/index/categorias/armado2.jpeg");
+}
+
+.btn-gastontextiles {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #8ed3c2;
+  background-image: url("../../assets/img/index/categorias/artistica.jpg");
+}
+
+.btn-gaston {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #8ed3c2;
+  background-image: url("talleres.jpg");
+}
+
+.btn-gastoninsumos:hover {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #ffffff;
+  background-image: url("../../assets/img/index/categorias/trampa.png");
+}
+
+.btn-gastontextiles:hover {
+  color: #fff;
+  /*background-color: #14221f;*/
+  border-color: #ffffff;
+  background-image: url("../../assets/img/index/categorias/trampa.png");
+}
+
