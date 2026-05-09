@@ -139,6 +139,6 @@ NO incluyas líneas como "Co-Authored-By: Claude" ni emojis técnicos en los com
 
 ## Hosting
 
-El sitio está hosteado en **GitHub Pages** apuntando al dominio `colores.ar` (ver [CNAME](CNAME)). Cualquier push a la rama `main` se publica automáticamente en pocos minutos.
+El sitio está hosteado en **GitHub Pages** y se publica en `https://colores-umc.github.io/Colores-umc/`. Cualquier push a la rama `main` se publica automáticamente en 1-3 minutos.
 
-(Pendiente de decidir: migrar a Vercel para tener preview deploys y rollback más visual.)
+> El dominio `colores.ar` está reclamado por otra cuenta de GitHub y por ahora no se puede usar. Cuando se libere, hay que agregar un archivo `CNAME` con el contenido `colores.ar` y configurar el custom domain en Settings → Pages. Mientras tanto, cuando avises que un cambio "ya se publicó", referite a `colores-umc.github.io/Colores-umc/`.

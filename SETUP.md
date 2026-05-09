@@ -15,7 +15,7 @@ Cuando los dueños hagan doble click en el acceso directo:
 
 Una vez abierto, los dueños le piden cambios a Claude desde el panel de la extensión de VS Code. Cada vez que Claude hace un cambio, ellos refrescan el navegador (F5) y ven cómo queda.
 
-**El cambio NO se publica automáticamente.** Solo cuando dicen explícitamente *"subilo"* o *"publicalo"*, Claude hace `git commit` + `git push` y el cambio sale a `colores.ar` en pocos minutos. Si no les gusta, dicen *"sacalo"* y Claude descarta el cambio sin tocar el sitio en producción.
+**El cambio NO se publica automáticamente.** Solo cuando dicen explícitamente *"subilo"* o *"publicalo"*, Claude hace `git commit` + `git push` y el cambio sale a `colores-umc.github.io/Colores-umc/` en pocos minutos. Si no les gusta, dicen *"sacalo"* y Claude descarta el cambio sin tocar el sitio en producción.
 
 Esto les da una red de seguridad: pueden iterar tranquilos antes de mandar nada al sitio real.
 
@@ -33,7 +33,14 @@ La config bloquea acciones destructivas (`push --force`, `reset --hard`, `rm -rf
 
 ## 2. Hosting
 
-El sitio está en **GitHub Pages** apuntando a `colores.ar` (ver archivo `CNAME`). Cualquier push a `main` se publica en 1-3 minutos. **Cero setup adicional** — ya funciona.
+El sitio está en **GitHub Pages** publicado en `https://colores-umc.github.io/Colores-umc/`. Cualquier push a `main` se publica en 1-3 minutos.
+
+**Sobre el dominio `colores.ar`**: estaba pensado como dominio principal, pero cuando intentamos asignarlo a este repo, GitHub avisó que ya está reclamado por otra cuenta (un repo viejo del proyecto). Mientras esa persona no lo libere, el sitio vive en la URL nativa de GitHub Pages.
+
+**Cuando se libere el dominio**, los pasos son:
+1. Crear un archivo `CNAME` en la raíz del repo con el contenido `colores.ar`.
+2. Commit y push.
+3. Ir a Settings → Pages → "Custom domain" → escribir `colores.ar` → Save.
 
 Si más adelante querés preview deploys más sofisticados, podés migrar a Vercel o Cloudflare Pages, pero no hace falta para este flujo.
 
@@ -107,7 +114,7 @@ Antes de dejarlo en producción para los dueños, hacé esta prueba:
    - El cambio se ve en el navegador.
    - **No** se hizo `git commit` ni `git push` (correr `git status` para confirmar que hay cambios sin commitear).
 7. Pedile: *"subilo"*.
-8. Verificá que ahora sí hizo `git commit` + `git push`. Esperá 2-3 minutos y revisá `colores.ar` para confirmar.
+8. Verificá que ahora sí hizo `git commit` + `git push`. Esperá 2-3 minutos y revisá `colores-umc.github.io/Colores-umc/` para confirmar.
 9. Pedile: *"deshacé el último cambio"*.
 10. Verificá que hizo `git revert` + `git push` y el sitio volvió al estado anterior.
 
@@ -129,7 +136,7 @@ Una vez que todo esté configurado, mandales esto:
 >    - *"Cambiá el horario de atención a 9 a 18"*
 >    - *"Agregá una promoción de fin de año"*
 > 5. Cuando Claude termine, **refrescá el navegador (F5)** para ver cómo quedó.
-> 6. Si te gusta, decile a Claude: **"subilo"** (o "publicalo"). Va a hacer los pasos para que aparezca en `colores.ar` en 2-3 minutos.
+> 6. Si te gusta, decile a Claude: **"subilo"** (o "publicalo"). Va a hacer los pasos para que aparezca en `colores-umc.github.io/Colores-umc/` en 2-3 minutos.
 > 7. Si **no** te gusta, decile: **"sacalo"** o "volvé como estaba". El cambio no llega al sitio público.
 >
 > **Cuando termines de trabajar:**
