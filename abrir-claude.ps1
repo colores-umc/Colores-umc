@@ -140,9 +140,11 @@ $devProcess = Start-Process -FilePath $npmPath -ArgumentList 'run','dev' `
     -RedirectStandardOutput $devLog `
     -RedirectStandardError $devErrLog
 
-# Esperar a que el server este listo (hasta 60s)
+# Esperar a que el server este listo (hasta 60s).
+# Primero esperamos el "ready in" del log, despues hacemos un ping HTTP real para
+# confirmar que de verdad responde (a veces el log dice ready antes de aceptar conexiones).
 $timeout = (Get-Date).AddSeconds(60)
-$ready = $false
+$logReady = $false
 while ((Get-Date) -lt $timeout) {
     if ($devProcess.HasExited) {
         Write-Host ""
@@ -156,15 +158,28 @@ while ((Get-Date) -lt $timeout) {
     if (Test-Path $devLog) {
         $content = Get-Content $devLog -Raw -ErrorAction SilentlyContinue
         if ($content -match "ready in") {
-            $ready = $true
+            $logReady = $true
             break
         }
     }
     Start-Sleep -Milliseconds 500
 }
 
-if (-not $ready) {
-    Write-Host "ADVERTENCIA: el server tardo mucho. Revisa $devErrLog si hay problemas." -ForegroundColor Yellow
+# Ping HTTP hasta que responda (max 15s extra) para asegurar que el navegador no
+# se abra antes que Astro acepte conexiones.
+$httpReady = $false
+if ($logReady) {
+    $httpTimeout = (Get-Date).AddSeconds(15)
+    while ((Get-Date) -lt $httpTimeout) {
+        try {
+            $resp = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 2 -ErrorAction Stop
+            if ($resp.StatusCode -eq 200) { $httpReady = $true; break }
+        } catch { Start-Sleep -Milliseconds 500 }
+    }
+}
+
+if (-not $httpReady) {
+    Write-Host "ADVERTENCIA: el server no respondio HTTP a tiempo. Revisa $devErrLog si hay problemas." -ForegroundColor Yellow
 }
 
 Write-Host "Preview local levantado en $url" -ForegroundColor Green
