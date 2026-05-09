@@ -1,0 +1,70 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHero from '../components/PageHero.astro';
+import CategorySection from '../components/CategorySection.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const img = (p: string) => `${base}/assets/img/manualidades/${p}`;
+
+const sections = [
+  {
+    title: 'Bordados',
+    images: [
+      { src: img('bordados/bordados 2.jpg'), caption: 'Bordado Chino y Deco-aguja' },
+      { src: img('bordados/bordados 3.jpg'), caption: 'Bordado con Fieltro' },
+      { src: img('bordados/bordados 5.jpg'), caption: 'Bordado Mexicano' },
+      { src: img('bordados/bordados 4.jpg'), caption: 'Bordado Mexicano' },
+      { src: img('bordados/bordados kit.jpg'), caption: 'Kit de Bordado' },
+    ],
+  },
+  {
+    title: 'Cintas',
+    images: [
+      { src: img('cintas/cintas.jpg'), caption: 'Guardas' },
+      { src: img('cintas/cintas 2.jpg') },
+      { src: img('cintas/cintas.jpeg') },
+      { src: img('cintas/21.jpg') },
+      { src: img('cintas/merceria.jpg') },
+      { src: img('cintas/merceria 2.jpg') },
+      { src: img('cintas/merceria 3.jpg') },
+    ],
+  },
+  {
+    title: 'Herramientas',
+    images: [
+      { src: img('herramientas/herramientas.jpg'), caption: 'Herramientas de corte' },
+      { src: img('herramientas/herramientas 1.jpg') },
+      { src: img('herramientas/herramientas 2.jpg') },
+      { src: img('herramientas/herramientas 3.jpg') },
+      { src: img('herramientas/herramientas 4.jpg') },
+      { src: img('herramientas/herramientas 5.jpg') },
+      { src: img('herramientas/herramientas 6.jpg') },
+      { src: img('herramientas/herramientas 7.jpg') },
+    ],
+  },
+  {
+    title: 'Telares',
+    images: [
+      { src: img('telares/telares.jpg') },
+      { src: img('telares/telares 2.jpeg') },
+      { src: img('telares/WhatsApp Image 2020-07-31 at 21.50.12.jpeg') },
+    ],
+  },
+  {
+    title: 'Botones y Cierres',
+    images: [
+      { src: img('botones/botones1.jpeg'), caption: 'Botones' },
+      { src: img('botones/cierre.jpeg'), caption: 'Cierres' },
+    ],
+  },
+];
+---
+
+<Layout title="Mercería - Colores">
+  <PageHero
+    title="Mercería"
+    subtitle="Materiales para tus proyectos de moda y costura"
+    image={`${base}/assets/img/index/categorias/merceria3.jpeg`}
+  />
+  {sections.map((section) => <CategorySection {...section} />)}
+</Layout>

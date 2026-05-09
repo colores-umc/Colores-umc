@@ -1,0 +1,77 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHero from '../components/PageHero.astro';
+import CategorySection from '../components/CategorySection.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const img = (p: string) => `${base}/assets/img/tejidos/${p}`;
+
+const sections = [
+  {
+    title: 'Hilos',
+    images: [
+      { src: img('hilos/hilos.jpg'), caption: 'Hilos Algodón' },
+      { src: img('hilos/hilos 3.jpg'), caption: 'Hilos Sisal' },
+      { src: img('hilos/hilos 4.jpeg'), caption: 'Soga y Cordón' },
+      { src: img('hilos/hilo encerado.jpeg'), caption: 'Hilo Encerado' },
+      { src: img('hilos/hilos 5.jpeg'), caption: 'Hilos Algodón Color' },
+      { src: img('hilos/WhatsApp Image 2020-08-01 at 16.09.01.jpeg'), caption: 'Hilos de Yute' },
+    ],
+  },
+  {
+    title: 'Lanas',
+    images: [
+      { src: img('lanas/lanas.jpg') },
+      { src: img('lanas/lanas 2.jpg') },
+      { src: img('lanas/lanas 3.jpg') },
+      { src: img('lanas/lanas 4.jpg') },
+      { src: img('lanas/lanas 5.jpeg') },
+      { src: img('lanas/lanas 6.jpeg') },
+      { src: img('lanas/lanas 7.jpeg') },
+      { src: img('lanas/lanas 8.jpeg') },
+      { src: img('lanas/lanas 9.jpeg') },
+      { src: img('lanas/lanas 10.jpeg') },
+      { src: img('lanas/lanas 11.jpeg') },
+      { src: img('lanas/lanas 12.jpeg') },
+    ],
+  },
+  {
+    title: 'Totora',
+    images: [
+      { src: img('totora/totora.jpg') },
+      { src: img('totora/totora 2.jpg') },
+      { src: img('totora/totora 4.jpg') },
+      { src: img('totora/totora 5.jpg') },
+      { src: img('totora/totora tul.jpeg') },
+      { src: img('totora/DSCN8777.JPG') },
+      { src: img('totora/DSCN8806.JPG') },
+    ],
+  },
+  {
+    title: 'Lanas XXL',
+    images: [
+      { src: img('xxl/xxl.jpg') },
+      { src: img('xxl/xxl 2.jpg') },
+      { src: img('xxl/WhatsApp Image 2020-07-31 at 01.46.04.jpeg') },
+    ],
+  },
+  {
+    title: 'Crochet',
+    images: [
+      { src: img('crochet/crochet.jpg') },
+      { src: img('crochet/crochet 2.jpg') },
+      { src: img('crochet/crochet 3.jpeg') },
+      { src: img('crochet/crochet 4.jpeg') },
+    ],
+  },
+];
+---
+
+<Layout title="Lanería - Colores">
+  <PageHero
+    title="Lanería"
+    subtitle="Todo para desarrollar tus tejidos"
+    image={`${base}/assets/img/index/categorias/tejidos.jpg`}
+  />
+  {sections.map((section) => <CategorySection {...section} />)}
+</Layout>

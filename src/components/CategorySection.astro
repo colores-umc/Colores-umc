@@ -1,0 +1,29 @@
+---
+import SectionDivider from './SectionDivider.astro';
+import ImageGrid from './ImageGrid.astro';
+import CatalogEmbed from './CatalogEmbed.astro';
+
+interface Image {
+  src: string;
+  caption?: string;
+  alt?: string;
+}
+
+interface Props {
+  title: string;
+  images?: Image[];
+  /** Hash de catálogo flipsnack opcional */
+  catalog?: string | string[];
+  catalogLabel?: string;
+  columns?: 2 | 3 | 4;
+}
+
+const { title, images, catalog, catalogLabel, columns } = Astro.props;
+const catalogs = Array.isArray(catalog) ? catalog : catalog ? [catalog] : [];
+---
+
+<section class="py-8 container mx-auto px-4">
+  <SectionDivider title={title} />
+  {images && images.length > 0 && <ImageGrid images={images} columns={columns} />}
+  {catalogs.map((hash) => <CatalogEmbed hash={hash} label={catalogLabel ?? 'Catálogo'} />)}
+</section>

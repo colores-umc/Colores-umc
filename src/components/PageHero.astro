@@ -1,0 +1,28 @@
+---
+interface Props {
+  title: string;
+  subtitle?: string;
+  /** Imagen de fondo opcional, ya con el path correcto */
+  image?: string;
+}
+
+const { title, subtitle, image } = Astro.props;
+---
+
+<section
+  class="relative py-24 md:py-32 -mt-16 pt-32 bg-gradient-to-br from-mint-soft via-mint to-mint-deep overflow-hidden"
+  style={image ? `background-image: linear-gradient(rgba(33,37,41,0.55), rgba(33,37,41,0.55)), url('${image}'); background-size: cover; background-position: center;` : ''}
+>
+  <div class="container mx-auto px-4 text-center relative z-10">
+    <h1
+      class={`text-5xl md:text-6xl font-bold uppercase tracking-wide reveal ${image ? 'text-white' : 'text-dark'}`}
+    >
+      {title}
+    </h1>
+    {subtitle && (
+      <p class={`mt-4 text-lg md:text-xl reveal ${image ? 'text-white/90' : 'text-dark/70'}`}>
+        {subtitle}
+      </p>
+    )}
+  </div>
+</section>

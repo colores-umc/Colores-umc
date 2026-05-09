@@ -1,0 +1,104 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHero from '../components/PageHero.astro';
+import CategorySection from '../components/CategorySection.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const img = (p: string) => `${base}/assets/img/accesorios/${p}`;
+
+const sections = [
+  {
+    title: 'Collares',
+    images: [
+      { src: img('collares/collares.jpg'), caption: 'Largos' },
+      { src: img('collares/rosarios y denarios.jpg') },
+      { src: img('collares/collares 4.jpg') },
+      { src: img('collares/collares 3.jpg'), caption: 'Cortos' },
+      { src: img('collares/collares 6.jpg') },
+      { src: img('collares/collares 9.jpg') },
+      { src: img('collares/collares 5.jpg'), caption: 'Medallones' },
+      { src: img('collares/collares 7.jpg') },
+      { src: img('collares/collares 2.jpg') },
+      { src: img('collares/collares 8.jpg') },
+      { src: img('collares/collares 10.jpg') },
+      { src: img('collares/collares 11.jpg') },
+      { src: img('collares/collares 12.jpg') },
+    ],
+  },
+  {
+    title: 'Carteras',
+    images: [
+      { src: img('carteras/carteras.jpg') },
+      { src: img('carteras/carteras 2.jpg') },
+      { src: img('carteras/carteras 3.jpg') },
+    ],
+  },
+  {
+    title: 'Sombreros',
+    images: [
+      { src: img('sombreros/gorros.jpg') },
+      { src: img('sombreros/gorros 2.jpg') },
+      { src: img('sombreros/gorros 3.jpg') },
+      { src: img('sombreros/gorros 4.jpg') },
+      { src: img('sombreros/sombrerosss.jpg') },
+    ],
+  },
+  {
+    title: 'Aros',
+    images: [
+      { src: img('aros/aros.jpg') },
+      { src: img('aros/aros 2.jpg') },
+      { src: img('aros/aros 3.jpg') },
+    ],
+  },
+  {
+    title: 'Pulseras',
+    images: [
+      { src: img('pulseras/pulsera Hooponopono.jpg') },
+      { src: img('pulseras/pulsera los planetas.jpg') },
+      { src: img('pulseras/pulsera los planetas 2.jpg') },
+      { src: img('pulseras/pulsera para reemplazar.jpeg') },
+      { src: img('pulseras/66936838_2248193158626492_8253637371989831054_n.jpg') },
+      { src: img('pulseras/WhatsApp Image 2020-08-02 at 21.26.15 (1).jpeg') },
+    ],
+  },
+  {
+    title: 'Acero Quirúrgico',
+    images: [
+      { src: img('acero/acero.jpeg') },
+      { src: img('acero/acero 2.jpeg') },
+      { src: img('acero/collares aceros.jpg') },
+    ],
+  },
+  {
+    title: 'Hombres',
+    images: [
+      { src: img('hombre/hombres 1.jpeg') },
+      { src: img('hombre/hombres 2.jpeg') },
+      { src: img('hombre/hombres 3.jpeg') },
+      { src: img('hombre/hombres 4.jpeg') },
+    ],
+  },
+  {
+    title: 'Pashminas',
+    images: [
+      { src: img('pasminas/pashmina.jpeg') },
+      { src: img('pasminas/pashmina 2.jpeg') },
+      { src: img('pasminas/pashmina 3.jpeg') },
+      { src: img('pasminas/pashminas.jpg') },
+      { src: img('pasminas/pashminas 2.jpg') },
+      { src: img('pasminas/pashminas 3.jpg') },
+      { src: img('pasminas/pañuelos.jpeg') },
+    ],
+  },
+];
+---
+
+<Layout title="Regalería - Colores">
+  <PageHero
+    title="Regalería"
+    subtitle="Detalles para conectar con otros, genuinos y auténticos"
+    image={`${base}/assets/img/index/categorias/regaleria.jpeg`}
+  />
+  {sections.map((section) => <CategorySection {...section} />)}
+</Layout>

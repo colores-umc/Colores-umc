@@ -1,0 +1,123 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHero from '../components/PageHero.astro';
+import CategorySection from '../components/CategorySection.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const img = (p: string) => `${base}/assets/img/armado/${p}`;
+
+const sections = [
+  {
+    title: 'Acero Quirúrgico',
+    images: [
+      { src: img('acero/acero.jpg') },
+      { src: img('acero/acero 2.jpg') },
+      { src: img('acero/acero 3.jpg') },
+      { src: img('acero/acero 4.jpg') },
+      { src: img('acero/acero 5.jpeg') },
+      { src: img('acero/WhatsApp Image 2020-08-02 at 19.39.30.jpeg') },
+    ],
+  },
+  {
+    title: 'Acrílicos',
+    images: [
+      { src: img('acrilico/acrilicos.jpg'), caption: 'Liso' },
+      { src: img('acrilico/acrilicos 2.jpeg'), caption: 'Facetado' },
+      { src: img('acrilico/Acrilico infantil.JPG'), caption: 'Infantil' },
+    ],
+    catalog: 'h30gmf3xu3',
+  },
+  {
+    title: 'Cadenas',
+    images: [
+      { src: img('cadenas/cadenas.jpg'), caption: 'Níquel' },
+      { src: img('cadenas/IMG-20190102-WA0022.jpg'), caption: 'Color' },
+      { src: img('cadenas/IMG-20190102-WA0028.jpg'), caption: 'Aluminio' },
+    ],
+    catalog: '7xjl1kt4ot',
+  },
+  {
+    title: 'Perla de Vidrio',
+    images: [
+      { src: img('collar/collar tira.jpg'), caption: 'Brillosas y Engomadas' },
+      { src: img('collar/collar tira 2.jpg'), caption: 'Marmoladas' },
+      { src: img('collar/collares tira.jpg'), caption: 'Perladas' },
+    ],
+  },
+  {
+    title: 'Cristal Facetado',
+    images: [
+      { src: img('cristal/cristal roca.jpg') },
+      { src: img('cristal/cristal roca 2.jpg') },
+      { src: img('cristal/cristal roca 3.jpeg') },
+    ],
+  },
+  {
+    title: 'Dijes',
+    images: [
+      { src: img('dijes/dijes 2.jpg') },
+      { src: img('dijes/dije.JPG') },
+      { src: img('dijes/dijes.jpg') },
+      { src: img('dijes/dijes 3.jpg') },
+      { src: img('dijes/dijes 4.jpg') },
+    ],
+    catalog: ['v1kfxc1wb1', 'hplwnijd1j'],
+    catalogLabel: 'Catálogos',
+  },
+  {
+    title: 'Gemas',
+    images: [
+      { src: img('gemas/gemas 2.jpeg'), caption: 'Opacas' },
+      { src: img('gemas/gemas 3.jpeg'), caption: 'Boreal' },
+      { src: img('gemas/gemas 4.jpeg'), caption: 'Cristal con Base' },
+    ],
+  },
+  {
+    title: 'Piedras Naturales',
+    images: [
+      { src: img('piedras/piedras.jpg') },
+      { src: img('piedras/piedras 1.jpeg') },
+      { src: img('piedras/piedras 2.jpg') },
+    ],
+  },
+  {
+    title: 'Cueros',
+    images: [
+      { src: `${base}/assets/img/cueros/34584077_327984871066851_8485899325765844992_n.jpg` },
+      { src: `${base}/assets/img/cueros/WhatsApp Image 2020-10-10 at 16.16.34.jpeg` },
+      { src: `${base}/assets/img/cueros/WhatsApp Image 2020-10-10 at 17.26.35.jpeg` },
+    ],
+  },
+  {
+    title: 'Maderitas',
+    catalog: 'tufd80funf',
+  },
+  {
+    title: 'Insumos Varios',
+    images: [
+      { src: img('insumos/argollas.jpeg'), caption: 'Argollas Metálicas' },
+      { src: img('insumos/armadores.jpeg'), caption: 'Argollas de Madera' },
+      { src: img('insumos/flores.jpeg'), caption: 'Flores Tela y Papel' },
+      { src: img('insumos/bolsitas organza.jpeg'), caption: 'Bolsas de Organza' },
+      { src: img('insumos/lentejuelas y maderas.jpeg'), caption: 'Lentejuelas' },
+      { src: img('insumos/varios 2.jpeg'), caption: 'Galones Brillosos' },
+      { src: img('insumos/strass.jpeg'), caption: 'Strass' },
+      { src: img('insumos/parches.jpeg'), caption: 'Apliques Termoadhesivos' },
+      { src: img('insumos/caracoles.jpg'), caption: 'Caracoles' },
+      { src: img('insumos/cierres.jpg'), caption: 'Cierres' },
+      { src: img('insumos/Gamuza.jpeg'), caption: 'Gamuzas' },
+      { src: img('insumos/varios.jpg'), caption: 'Hilo Chino' },
+    ],
+    catalog: '7k8yp3nvxn',
+  },
+];
+---
+
+<Layout title="Armador - Colores">
+  <PageHero
+    title="Armador"
+    subtitle="Piezas versátiles para componer mil diseños"
+    image={`${base}/assets/img/index/categorias/armado.jpg`}
+  />
+  {sections.map((section) => <CategorySection {...section} />)}
+</Layout>

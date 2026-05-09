@@ -1,0 +1,46 @@
+---
+// Lightbox global. Cualquier botón con clase "lightbox-trigger" y atributo
+// data-img dispara el lightbox con la imagen indicada.
+---
+
+<dialog
+  id="lightbox"
+  class="backdrop:bg-black/80 bg-transparent p-0 max-w-[95vw] max-h-[95vh] m-auto"
+>
+  <div class="relative">
+    <button
+      id="lightbox-close"
+      class="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-mint text-dark flex items-center justify-center shadow-lg hover:scale-110 transition-transform z-10"
+      aria-label="Cerrar"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <img id="lightbox-img" src="" alt="" class="max-w-[95vw] max-h-[95vh] object-contain rounded-lg" />
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('lightbox') as HTMLDialogElement | null;
+  const img = document.getElementById('lightbox-img') as HTMLImageElement | null;
+  const closeBtn = document.getElementById('lightbox-close');
+
+  document.addEventListener('click', (e) => {
+    const target = (e.target as HTMLElement).closest<HTMLElement>('.lightbox-trigger');
+    if (target && img && dialog) {
+      const src = target.getAttribute('data-img');
+      if (src) {
+        img.src = src;
+        dialog.showModal();
+      }
+    }
+  });
+
+  closeBtn?.addEventListener('click', () => dialog?.close());
+
+  // Cerrar al clickear fuera del contenido
+  dialog?.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+</script>

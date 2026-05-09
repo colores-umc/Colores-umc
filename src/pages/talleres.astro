@@ -1,0 +1,102 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHero from '../components/PageHero.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const talleres = [
+  {
+    title: 'Bijouterie',
+    text: 'Aprendé a crear joyas únicas con materiales diversos. Desarrollá habilidades creativas y confeccioná accesorios personalizados. ¡Explorá tu estilo!',
+    image: `${base}/assets/img/talleres/caraturalas/cursos_rosario.jpg`,
+  },
+  {
+    title: 'Cerámica',
+    text: 'Aprendé a crear piezas únicas con arcilla y esmaltes. Descubrí técnicas de modelado y decoración en un ambiente creativo y apasionante.',
+    image: `${base}/assets/img/talleres/caraturalas/ceramica.jpeg`,
+  },
+  {
+    title: 'Cestería en Papel',
+    text: 'Creá hermosas cestas utilizando papel reciclado. Aprendé técnicas de trenzado y plegado para confeccionar originales y funcionales obras de arte.',
+    image: `${base}/assets/img/talleres/caraturalas/cesteria_papel.jpeg`,
+  },
+  {
+    title: 'Pintura de Cuadros',
+    text: 'Aprendé técnicas de pintura al óleo o acrílico. Expresá tu estilo y creá obras de arte impresionantes.',
+    image: `${base}/assets/img/talleres/caraturalas/pinturas.jpeg`,
+  },
+  {
+    title: 'Porcelana Fría',
+    text: 'Descubrí la versatilidad de este material y creá hermosas figuras y decoraciones. Aprendé técnicas de modelado y pintura en un curso completo.',
+    image: `${base}/assets/img/talleres/caraturalas/porcelana_fria.jpeg`,
+  },
+  {
+    title: 'Puntillismo',
+    text: 'Aprendé a crear obras impresionantes a través de la aplicación de pequeños puntos de color. Desarrollá tu habilidad artística con estas técnicas.',
+    image: `${base}/assets/img/talleres/caraturalas/puntillismo.jpeg`,
+  },
+  {
+    title: 'Tejido',
+    text: 'Aprendé técnicas tradicionales y modernas para tejer prendas y accesorios únicos. Adquirí habilidades creativas en un ambiente inspirador.',
+    image: `${base}/assets/img/talleres/caraturalas/tejido.jpeg`,
+  },
+];
+
+const ediciones = [
+  `${base}/assets/img/talleres/ediciones/cuadrito.jpeg`,
+  `${base}/assets/img/talleres/ediciones/carbone_08.jpeg`,
+  `${base}/assets/img/talleres/ediciones/cuadrito2.jpeg`,
+];
+---
+
+<Layout title="Talleres Creativos - Colores">
+  <PageHero
+    title="Talleres Creativos"
+    subtitle="Explorá tu creatividad en nuestros talleres artísticos"
+    image={`${base}/assets/img/index/categorias/talleres2.jpg`}
+  />
+
+  <div class="container mx-auto px-4 py-16">
+    {talleres.map((taller, idx) => (
+      <div class={`grid grid-cols-1 md:grid-cols-2 gap-10 items-center mb-20 reveal ${idx % 2 === 1 ? 'md:[&>:first-child]:order-2' : ''}`}>
+        <div class="relative">
+          <div class="aspect-square w-full max-w-md mx-auto rounded-full overflow-hidden shadow-2xl ring-8 ring-mint/30">
+            <img
+              src={taller.image}
+              alt={taller.title}
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        </div>
+        <div class={idx % 2 === 0 ? 'md:pr-8' : 'md:pl-8'}>
+          <h2 class="text-4xl md:text-5xl font-bold italic mb-4">{taller.title}</h2>
+          <p class="text-lg text-gray-700 leading-relaxed">{taller.text}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <section class="bg-gray-50 py-16">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center reveal">Ediciones Especiales</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        {ediciones.map((src) => (
+          <button
+            type="button"
+            class="lightbox-trigger group block overflow-hidden rounded-2xl shadow-md hover:shadow-2xl transition-shadow reveal"
+            data-img={src}
+            aria-label="Ampliar imagen"
+          >
+            <img
+              src={src}
+              alt="Edición especial"
+              loading="lazy"
+              class="w-full aspect-[3/4] object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>

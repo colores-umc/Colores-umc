@@ -1,15 +1,20 @@
 # Launcher para modificar la pagina de Colores con Claude Code (extension de VS Code).
-# - Levanta un mini servidor HTTP en PowerShell puro (mismo proceso, via runspace).
-# - Abre el navegador en localhost.
-# - Abre VS Code en una ventana nueva apuntando a la carpeta del repo.
-# Al apretar cualquier tecla apaga el servidor y cierra.
+# - Verifica que Node y VS Code esten instalados.
+# - Si es la primera vez, corre npm install.
+# - Levanta el dev server de Astro (npm run dev) en background.
+# - Espera a que el server este listo y abre el navegador.
+# - Abre VS Code en el repo.
+# - Al apretar cualquier tecla, apaga el dev server limpiamente y cierra.
 
 $ErrorActionPreference = 'Continue'
 $repoPath = $PSScriptRoot
 Set-Location $repoPath
 
-$port = 8000
-$url = "http://localhost:$port"
+$port = 4321
+$basePath = '/Colores-umc'
+$url = "http://localhost:$port$basePath/"
+$devLog = Join-Path $env:TEMP 'colores-dev.log'
+$devErrLog = Join-Path $env:TEMP 'colores-dev-err.log'
 
 function Write-Header {
     Write-Host ""
@@ -33,6 +38,30 @@ function Find-VSCode {
     return $null
 }
 
+function Find-Node {
+    $cmd = Get-Command node -ErrorAction SilentlyContinue
+    return ($cmd -ne $null)
+}
+
+function Find-Npm {
+    # npm.cmd se prefiere sobre npm.ps1 porque no requiere ExecutionPolicy.
+    $cmd = Get-Command npm.cmd -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+    $cmd = Get-Command npm -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+    return $null
+}
+
+function Stop-ProcessTree {
+    param([int]$ProcessId)
+    try {
+        Get-CimInstance Win32_Process -Filter "ParentProcessId = $ProcessId" -ErrorAction SilentlyContinue | ForEach-Object {
+            Stop-ProcessTree -ProcessId $_.ProcessId
+        }
+        Stop-Process -Id $ProcessId -Force -ErrorAction SilentlyContinue
+    } catch { }
+}
+
 function Stop-PortProcess([int]$portNumber) {
     try {
         $conn = Get-NetTCPConnection -LocalPort $portNumber -State Listen -ErrorAction SilentlyContinue
@@ -45,98 +74,100 @@ function Stop-PortProcess([int]$portNumber) {
     } catch { }
 }
 
+function Wait-AnyKeyAndExit([int]$exitCode = 0) {
+    Write-Host ""
+    Write-Host "Apreta una tecla para cerrar..." -ForegroundColor Yellow
+    try { [Console]::ReadKey($true) | Out-Null } catch { Start-Sleep -Seconds 5 }
+    exit $exitCode
+}
+
 Write-Header
+
+# Verificar Node
+if (-not (Find-Node)) {
+    Write-Host "ERROR: Node.js no esta instalado." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Para instalarlo:" -ForegroundColor Yellow
+    Write-Host "  1. Andate a https://nodejs.org" -ForegroundColor Yellow
+    Write-Host "  2. Descarga la version LTS (boton verde)" -ForegroundColor Yellow
+    Write-Host "  3. Instalalo (Next, Next, Next, Install)" -ForegroundColor Yellow
+    Write-Host "  4. Volve a abrir este acceso directo" -ForegroundColor Yellow
+    Wait-AnyKeyAndExit 1
+}
 
 # Verificar VS Code
 $vscodePath = Find-VSCode
 if (-not $vscodePath) {
     Write-Host "ERROR: No encontre Visual Studio Code instalado." -ForegroundColor Red
     Write-Host "Instalalo desde https://code.visualstudio.com" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "Apreta una tecla para cerrar..." -ForegroundColor Yellow
-    [Console]::ReadKey($true) | Out-Null
-    exit 1
+    Wait-AnyKeyAndExit 1
 }
 
-# Liberar puerto si quedo ocupado
+# Verificar npm
+$npmPath = Find-Npm
+if (-not $npmPath) {
+    Write-Host "ERROR: npm no esta disponible." -ForegroundColor Red
+    Write-Host "Reinstala Node.js desde https://nodejs.org" -ForegroundColor Yellow
+    Wait-AnyKeyAndExit 1
+}
+
+# Si es primera vez, instalar dependencias
+if (-not (Test-Path "node_modules")) {
+    Write-Host "Primera vez ejecutando: instalando dependencias..." -ForegroundColor Yellow
+    Write-Host "(Esto tarda 30-60 segundos solo la primera vez)" -ForegroundColor DarkGray
+    Write-Host ""
+    & $npmPath install
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ""
+        Write-Host "ERROR instalando dependencias." -ForegroundColor Red
+        Write-Host "Revisa el output de arriba para ver que paso." -ForegroundColor Yellow
+        Wait-AnyKeyAndExit 1
+    }
+    Write-Host ""
+    Write-Host "Dependencias instaladas." -ForegroundColor Green
+    Write-Host ""
+}
+
+# Limpiar logs previos y liberar puerto
+Remove-Item $devLog -ErrorAction SilentlyContinue
+Remove-Item $devErrLog -ErrorAction SilentlyContinue
 Stop-PortProcess -portNumber $port
 
-# Crear el listener en el thread principal: asi podemos pararlo desde aca
-# y forzar que el runspace salga del while loop.
-$listener = New-Object System.Net.HttpListener
-$listener.Prefixes.Add("http://localhost:$port/")
-$listener.Prefixes.Add("http://127.0.0.1:$port/")
+# Levantar el dev server como proceso hijo, redirigiendo stdout/stderr a archivos
+Write-Host "Levantando preview local..." -ForegroundColor Yellow
+$devProcess = Start-Process -FilePath $npmPath -ArgumentList 'run','dev' `
+    -PassThru -NoNewWindow `
+    -RedirectStandardOutput $devLog `
+    -RedirectStandardError $devErrLog
 
-try {
-    $listener.Start()
-} catch {
-    Write-Host "ERROR levantando el preview local: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "Posibles causas: antivirus o firewall bloqueando localhost." -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "Apreta una tecla para cerrar..." -ForegroundColor Yellow
-    [Console]::ReadKey($true) | Out-Null
-    exit 1
+# Esperar a que el server este listo (hasta 60s)
+$timeout = (Get-Date).AddSeconds(60)
+$ready = $false
+while ((Get-Date) -lt $timeout) {
+    if ($devProcess.HasExited) {
+        Write-Host ""
+        Write-Host "ERROR: el server se cerro inesperadamente." -ForegroundColor Red
+        if (Test-Path $devErrLog) {
+            Write-Host "Errores:" -ForegroundColor Yellow
+            Get-Content $devErrLog | Select-Object -Last 20
+        }
+        Wait-AnyKeyAndExit 1
+    }
+    if (Test-Path $devLog) {
+        $content = Get-Content $devLog -Raw -ErrorAction SilentlyContinue
+        if ($content -match "ready in") {
+            $ready = $true
+            break
+        }
+    }
+    Start-Sleep -Milliseconds 500
+}
+
+if (-not $ready) {
+    Write-Host "ADVERTENCIA: el server tardo mucho. Revisa $devErrLog si hay problemas." -ForegroundColor Yellow
 }
 
 Write-Host "Preview local levantado en $url" -ForegroundColor Green
-
-# Mime map - lo pasamos al runspace por valor
-$mimeMap = @{
-    '.html'='text/html; charset=utf-8'; '.htm'='text/html; charset=utf-8'
-    '.css'='text/css; charset=utf-8'; '.js'='application/javascript; charset=utf-8'
-    '.json'='application/json; charset=utf-8'; '.xml'='application/xml; charset=utf-8'
-    '.txt'='text/plain; charset=utf-8'; '.png'='image/png'
-    '.jpg'='image/jpeg'; '.jpeg'='image/jpeg'; '.gif'='image/gif'
-    '.webp'='image/webp'; '.svg'='image/svg+xml'; '.ico'='image/x-icon'
-    '.bmp'='image/bmp'; '.woff'='font/woff'; '.woff2'='font/woff2'
-    '.ttf'='font/ttf'; '.otf'='font/otf'; '.eot'='application/vnd.ms-fontobject'
-    '.pdf'='application/pdf'; '.mp4'='video/mp4'; '.webm'='video/webm'
-    '.mp3'='audio/mpeg'; '.wav'='audio/wav'
-}
-
-# Worker que atiende requests. El listener se le pasa por argumento y lo
-# para el thread principal cuando termina, lo que rompe GetContext().
-$workerScript = {
-    param($listener, $Root, $mimeMap)
-    while ($listener.IsListening) {
-        try {
-            $context = $listener.GetContext()
-            $request = $context.Request
-            $response = $context.Response
-
-            $rel = [System.Net.WebUtility]::UrlDecode($request.Url.LocalPath).TrimStart('/')
-            if ([string]::IsNullOrEmpty($rel)) { $rel = 'index.html' }
-            $filePath = Join-Path $Root $rel
-            if (Test-Path $filePath -PathType Container) {
-                $filePath = Join-Path $filePath 'index.html'
-            }
-
-            if (Test-Path $filePath -PathType Leaf) {
-                $bytes = [System.IO.File]::ReadAllBytes($filePath)
-                $ext = [System.IO.Path]::GetExtension($filePath).ToLower()
-                $mime = $mimeMap[$ext]
-                if (-not $mime) { $mime = 'application/octet-stream' }
-                $response.ContentType = $mime
-                $response.ContentLength64 = $bytes.Length
-                $response.StatusCode = 200
-                $response.OutputStream.Write($bytes, 0, $bytes.Length)
-            } else {
-                $response.StatusCode = 404
-            }
-            $response.OutputStream.Close()
-        } catch {
-            # GetContext lanza excepcion cuando se para el listener: salimos limpio
-            if (-not $listener.IsListening) { break }
-        }
-    }
-}
-
-$runspace = [runspacefactory]::CreateRunspace()
-$runspace.Open()
-$psInstance = [powershell]::Create()
-$psInstance.Runspace = $runspace
-[void]$psInstance.AddScript($workerScript).AddArgument($listener).AddArgument($repoPath).AddArgument($mimeMap)
-$asyncResult = $psInstance.BeginInvoke()
 
 # Abrir navegador
 Write-Host "Abriendo navegador..." -ForegroundColor Yellow
@@ -176,20 +207,11 @@ try {
 Write-Host ""
 Write-Host "Apagando preview local..." -ForegroundColor Yellow
 
-# Cleanup ordenado: primero parar el listener (lo cual rompe GetContext en el runspace),
-# despues limpiar runspace y psInstance, despues forzar puerto libre.
-try { $listener.Stop() } catch { }
-try { $listener.Close() } catch { }
+# Terminar el proceso npm y todos sus hijos (especialmente node)
+Stop-ProcessTree -ProcessId $devProcess.Id
 
-# Le damos un margen al runspace para que termine solo
-$timeout = (Get-Date).AddSeconds(2)
-while (-not $asyncResult.IsCompleted -and (Get-Date) -lt $timeout) {
-    Start-Sleep -Milliseconds 100
-}
-
-try { $psInstance.Dispose() } catch { }
-try { $runspace.Close() } catch { }
-try { $runspace.Dispose() } catch { }
+# Por las dudas, liberar el puerto si quedo ocupado
+Start-Sleep -Milliseconds 500
 Stop-PortProcess -portNumber $port
 
 Write-Host "Listo. Hasta la proxima!" -ForegroundColor Green

@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-mint: #8ED3C2;
+  --color-mint-soft: #b8e2d4;
+  --color-mint-deep: #5fb39d;
+  --color-dark: #212529;
+
+  --font-script: "Kaushan Script", cursive;
+  --font-sans: "Montserrat", system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-dark);
+}
+
+.font-script {
+  font-family: var(--font-script);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  opacity: 0;
+}
+
+.reveal.in-view {
+  animation: fade-up 0.8s ease-out forwards;
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s ease-in-out infinite;
+}
