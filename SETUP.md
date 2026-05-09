@@ -1,215 +1,139 @@
 # Setup inicial para los dueños
 
-Este archivo documenta los pasos que tenés que hacer **una sola vez** para dejar todo configurado. Los dueños nunca deberían tener que hacer esto — con que vos lo dejes listo, ellos solo abren Claude Code y piden cambios.
+Este archivo documenta los pasos que tenés que hacer **una sola vez** para dejar todo configurado. Los dueños nunca deberían tener que hacer esto — con que vos lo dejes listo, ellos solo abren el acceso directo y piden cambios.
+
+---
+
+## Cómo es el flujo (preview-first)
+
+Cuando los dueños hagan doble click en el acceso directo:
+
+1. Se levanta un **servidor local** en `http://localhost:8000` (en background).
+2. Se abre el **navegador** mostrando la página tal como está hoy.
+3. Se abre **VS Code** en la carpeta del repo (con la extensión de Claude Code).
+4. Queda una ventana de PowerShell esperando una tecla — al apretarla se apaga el servidor local.
+
+Una vez abierto, los dueños le piden cambios a Claude desde el panel de la extensión de VS Code. Cada vez que Claude hace un cambio, ellos refrescan el navegador (F5) y ven cómo queda.
+
+**El cambio NO se publica automáticamente.** Solo cuando dicen explícitamente *"subilo"* o *"publicalo"*, Claude hace `git commit` + `git push` y el cambio sale a `colores.ar` en pocos minutos. Si no les gusta, dicen *"sacalo"* y Claude descarta el cambio sin tocar el sitio en producción.
+
+Esto les da una red de seguridad: pueden iterar tranquilos antes de mandar nada al sitio real.
 
 ---
 
 ## 1. Configurar permisos auto-aprobados de Claude Code
 
-Para que los dueños no tengan que aprobar cada acción, hay que crear el archivo `.claude/settings.json` dentro de este repo, con la siguiente configuración:
+Para que los dueños no tengan que aprobar cada acción, hay que crear el archivo `.claude/settings.json` dentro de este repo, con la configuración que ya pusiste vos al principio del setup.
 
-**Ruta**: `.claude/settings.json` (dentro de `Colores-umc/`)
+> ✅ Este paso ya lo hiciste cuando creaste el `settings.json` al principio.
+
+La config bloquea acciones destructivas (`push --force`, `reset --hard`, `rm -rf`, modificar `git config`) — si Claude alguna vez las intenta, va a frenar y pedir aprobación.
+
+---
+
+## 2. Hosting
+
+El sitio está en **GitHub Pages** apuntando a `colores.ar` (ver archivo `CNAME`). Cualquier push a `main` se publica en 1-3 minutos. **Cero setup adicional** — ya funciona.
+
+Si más adelante querés preview deploys más sofisticados, podés migrar a Vercel o Cloudflare Pages, pero no hace falta para este flujo.
+
+---
+
+## 3. MCPs recomendados (extensión de VS Code)
+
+Los MCPs (Model Context Protocol) son extensiones que le dan a Claude más capacidades. **Importante**: como usás la extensión de VS Code, no se instalan con `claude mcp add` (eso es para el CLI). Se configuran desde la UI de la extensión o editando el archivo de configuración.
+
+### Cómo agregar un MCP en la extensión de VS Code
+
+Hay dos formas:
+
+**Opción A — Desde la UI**: en VS Code, abrí el panel de Claude Code → ícono de configuración → "MCP servers" → "Add server".
+
+**Opción B — Editando el archivo de config del usuario**: típicamente en `%USERPROFILE%\.claude\mcp.json` o se puede configurar a nivel proyecto en `.claude/mcp.json`. Con un contenido tipo:
 
 ```json
 {
-  "permissions": {
-    "allow": [
-      "Read",
-      "Write",
-      "Edit",
-      "Glob",
-      "Grep",
-      "TodoWrite",
-      "WebFetch",
-      "WebSearch",
-      "Bash(git status*)",
-      "Bash(git diff*)",
-      "Bash(git log*)",
-      "Bash(git add*)",
-      "Bash(git commit*)",
-      "Bash(git push*)",
-      "Bash(git pull*)",
-      "Bash(git fetch*)",
-      "Bash(git branch*)",
-      "Bash(git checkout*)",
-      "Bash(git revert*)",
-      "Bash(git restore*)",
-      "Bash(git stash*)",
-      "Bash(python -m http.server*)",
-      "Bash(start *)",
-      "Bash(ls*)",
-      "Bash(echo*)",
-      "PowerShell(git status*)",
-      "PowerShell(git diff*)",
-      "PowerShell(git log*)",
-      "PowerShell(git add*)",
-      "PowerShell(git commit*)",
-      "PowerShell(git push*)",
-      "PowerShell(git pull*)",
-      "PowerShell(git fetch*)",
-      "PowerShell(git branch*)",
-      "PowerShell(git checkout*)",
-      "PowerShell(git revert*)",
-      "PowerShell(git restore*)",
-      "PowerShell(Start-Process*)"
-    ],
-    "deny": [
-      "Bash(git push --force*)",
-      "Bash(git reset --hard*)",
-      "Bash(rm -rf*)",
-      "Bash(git branch -D*)",
-      "Bash(git config*)",
-      "PowerShell(git push --force*)",
-      "PowerShell(git reset --hard*)",
-      "PowerShell(Remove-Item -Recurse -Force*)",
-      "PowerShell(git branch -D*)",
-      "PowerShell(git config*)"
-    ]
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    }
   }
 }
 ```
 
-**Por qué esta config**:
-- Permite todo lo que Claude necesita para editar archivos y hacer commit + push sin pedir confirmación.
-- **Bloquea** acciones destructivas (`push --force`, `reset --hard`, `rm -rf`, borrar branches, modificar git config) — si Claude alguna vez las intenta, va a frenar y pedir aprobación.
+> La ubicación exacta y formato pueden variar entre versiones de la extensión. Si tenés dudas, mirá la documentación interna de la extensión (busca "MCP" en el comando palette de VS Code: `Ctrl+Shift+P`).
 
-> Claude Code no puede crear este archivo automáticamente porque modifica sus propios permisos. Tenés que crearlo a mano.
+### MCPs recomendados para este caso de uso
 
----
+**Playwright MCP** (el más valioso): permite que Claude **vea** la página antes de aprobar cambios. Útil para cambios visuales — Claude puede sacar un screenshot del preview local y revisarlo antes de avisarte que está listo.
 
-## 2. Hook opcional: auto-commit + auto-push al terminar
-
-Este hook hace que después de cada respuesta de Claude se haga commit + push automáticamente, así los dueños no tienen que pedirlo cada vez.
-
-Agregá esto al `settings.json` dentro de `permissions`, al mismo nivel:
-
-```json
-{
-  "permissions": { ... },
-  "hooks": {
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "powershell -NoProfile -Command \"if ((git status --porcelain).Length -gt 0) { git add -A; git commit -m 'auto: cambios desde Claude Code'; git push }\""
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-**Pros**: cero fricción, los cambios se publican solos.
-**Contras**: si Claude se equivoca, el error queda pusheado al toque. **Mitigación**: los dueños siempre pueden decir "deshacé el último cambio" y Claude hace `git revert`.
-
-**Mi recomendación**: en lugar del hook, dejá que Claude haga el commit + push como parte de cada respuesta (ya está documentado en CLAUDE.md). Eso te permite que Claude elija un mensaje de commit descriptivo en español, en vez de "auto: cambios". Si querés el hook igual, agregalo.
-
----
-
-## 3. Hosting
-
-Actualmente la página está en **GitHub Pages** apuntando a `colores.ar` (ver archivo CNAME). Tenés tres opciones:
-
-### Opción A — Quedarse con GitHub Pages (lo más simple)
-- Ya funciona. Cualquier push a `main` se publica en pocos minutos.
-- No tiene preview deploys ni rollback con un click, pero sí está el `git revert` que ya documentamos.
-- **Cero setup adicional.**
-
-### Opción B — Migrar a Vercel
-1. Ir a https://vercel.com → "New Project" → conectar el repo `colores-umc/Colores-umc`.
-2. Framework preset: "Other" (es estático).
-3. Build command: dejar vacío. Output directory: dejar `.` (raíz).
-4. Configurar dominio `colores.ar` desde el dashboard de Vercel y actualizar los DNS.
-5. Borrar el archivo `CNAME` del repo (ya no hace falta para GitHub Pages).
-
-**Ventajas de Vercel**: preview URLs por cada branch, rollback con un click, mejor analytics, CDN global.
-**Desventaja**: tenés que migrar los DNS — el sitio puede estar 5-30 min sin servicio durante el cambio.
-
-### Opción C — Cloudflare Pages
-Similar a Vercel, gratis, integra bien con dominios `.ar` (Cloudflare es popular para AR). Mismo flujo: conectás el repo, configurás el dominio.
-
-**Mi recomendación**: como dijiste "deploy directo a producción", **quedate con GitHub Pages por ahora**. Cero migración, ya funciona. Si más adelante querés preview deploys, migrar a Vercel toma 15 minutos.
-
----
-
-## 4. MCPs recomendados
-
-Los MCPs (Model Context Protocol) son extensiones que le dan a Claude más capacidades.
-
-### GitHub MCP (oficial)
-**Para qué**: ver issues, PRs, estado del repo desde Claude sin usar `git` por CLI. Útil si en algún momento abrís PRs o usás issues.
-
-**Cómo instalar** (una vez, en la PC de los dueños):
-```powershell
-claude mcp add github -- npx -y @modelcontextprotocol/server-github
-```
-Luego configurar el `GITHUB_TOKEN` en variables de entorno (un Personal Access Token de GitHub con permisos de repo).
-
-### Vercel MCP (si elegís Vercel)
-**Para qué**: ver estado de deploys, hacer rollback, ver logs.
-```powershell
-claude mcp add vercel -- npx -y @vercel/mcp-server
-```
-
-### Playwright MCP (muy recomendado)
-**Para qué**: que Claude pueda **ver** la página antes de pushear. Esto es oro para cambios visuales.
-```powershell
-claude mcp add playwright -- npx -y @playwright/mcp@latest
-```
-
-Con esto, después de cambiar algo Claude puede abrir el sitio local, sacar un screenshot, verificar que se ve bien, y recién ahí pushear.
+**GitHub MCP**: ver estado del repo, issues, PRs sin usar `git` por CLI. Nice-to-have.
 
 **Mi recomendación**: instalá **Playwright primero**. Es el que más valor da para este caso de uso.
 
 ---
 
-## 5. Acceso directo en el escritorio
+## 4. Acceso directo en el escritorio
 
-Hay un script `abrir-claude.bat` en la raíz del repo. Para crear el acceso directo:
+Hay un script `abrir-claude.bat` (que invoca a `abrir-claude.ps1`) en la raíz del repo. Para crear el acceso directo en el escritorio:
 
-1. Click derecho en `abrir-claude.bat` → "Crear acceso directo".
-2. Mover el acceso directo al escritorio.
-3. Click derecho → "Propiedades" → cambiar el ícono a algo identificable (un pincel, un corazón, lo que sea).
-4. Renombrarlo a algo claro: "Modificar página Colores".
+```powershell
+powershell -ExecutionPolicy Bypass -File "C:\Users\Sandra Packosky\Desktop\pagina\Colores-umc\crear-acceso-directo.ps1"
+```
 
-Cuando los dueños hagan doble click, se les abre PowerShell con Claude Code listo en la carpeta del repo.
+Esto crea **"Modificar pagina Colores.lnk"** en el escritorio. Cuando hacen doble click:
+1. Levanta servidor local (`http://localhost:8000`).
+2. Abre el navegador mostrando la página.
+3. Abre VS Code en la carpeta del repo.
+4. Deja una ventanita de PowerShell esperando tecla para apagar el preview cuando terminen.
+
+> Si querés cambiar el ícono: click derecho sobre el shortcut → Propiedades → "Cambiar icono".
 
 ---
 
-## 6. Probar el flujo end-to-end
+## 5. Probar el flujo end-to-end
 
 Antes de dejarlo en producción para los dueños, hacé esta prueba:
 
-1. Abrí Claude Code en este repo.
-2. Pedile: "cambiá el banner principal de la home con un mensaje de bienvenida navideño, sin tocar el resto".
-3. Verificá que:
-   - Hizo el cambio en `index.html`.
-   - No te pidió aprobación para nada.
-   - Hizo `git commit` con un mensaje claro en español.
-   - Hizo `git push` automáticamente.
-4. Esperá unos minutos y revisá `colores.ar` para confirmar que el cambio se publicó.
-5. Pedile: "deshacé el último cambio".
-6. Verificá que hizo `git revert` + `git push` y el sitio volvió al estado anterior.
+1. Doble click en el acceso directo del escritorio.
+2. Verificá que:
+   - Se abrió el navegador en `localhost:8000` mostrando la página.
+   - Se abrió VS Code en la carpeta correcta.
+3. En VS Code, abrí el panel de Claude (Ctrl+Esc o el ícono lateral).
+4. Pedile: *"cambiá el banner principal de la home con un mensaje de bienvenida navideño, sin tocar el resto"*.
+5. Esperá a que termine. Refrescá el navegador (F5).
+6. Verificá que:
+   - El cambio se ve en el navegador.
+   - **No** se hizo `git commit` ni `git push` (correr `git status` para confirmar que hay cambios sin commitear).
+7. Pedile: *"subilo"*.
+8. Verificá que ahora sí hizo `git commit` + `git push`. Esperá 2-3 minutos y revisá `colores.ar` para confirmar.
+9. Pedile: *"deshacé el último cambio"*.
+10. Verificá que hizo `git revert` + `git push` y el sitio volvió al estado anterior.
 
-Si pasa los dos tests, el flujo está listo.
+Si pasa los tres tests (preview, publicar, revertir), el flujo está listo.
 
 ---
 
-## 7. Instrucciones para los dueños
+## 6. Instrucciones para los dueños
 
 Una vez que todo esté configurado, mandales esto:
 
 > **Para modificar la página:**
-> 1. Hacer doble click en el acceso directo "Modificar página Colores".
-> 2. Escribir lo que querés cambiar, en castellano normal. Ejemplos:
->    - "Cambiá la página con tema navideño"
->    - "Subí esta foto al banner: ..." (arrastrar la foto a la ventana)
->    - "Cambiá el horario de atención a 9 a 18"
->    - "Agregá una promoción de fin de año"
-> 3. Esperar a que Claude termine. Te va a decir qué cambió y que ya se publicó.
-> 4. Esperar 2-3 minutos y revisar `colores.ar` para verlo en vivo.
 >
-> **Si algo salió mal**, escribir: "deshacé el último cambio" o "volvé como estaba antes".
+> 1. Doble click en el ícono **"Modificar pagina Colores"** del escritorio.
+> 2. Se abren tres cosas: el navegador con la página, VS Code, y una ventanita negra (PowerShell). No cierren la ventanita negra hasta el final.
+> 3. En VS Code, abran el chat de Claude (panel lateral o `Ctrl+Esc`).
+> 4. Escribí lo que querés cambiar, en castellano normal. Ejemplos:
+>    - *"Cambiá la página con tema navideño"*
+>    - *"Cambiá el horario de atención a 9 a 18"*
+>    - *"Agregá una promoción de fin de año"*
+> 5. Cuando Claude termine, **refrescá el navegador (F5)** para ver cómo quedó.
+> 6. Si te gusta, decile a Claude: **"subilo"** (o "publicalo"). Va a hacer los pasos para que aparezca en `colores.ar` en 2-3 minutos.
+> 7. Si **no** te gusta, decile: **"sacalo"** o "volvé como estaba". El cambio no llega al sitio público.
+>
+> **Cuando termines de trabajar:**
+> - Cerrá VS Code y el navegador como cualquier otra ventana.
+> - En la ventanita negra (PowerShell), apretá cualquier tecla para apagar el preview local.
+>
+> **Si algo salió mal y ya lo subiste**, abrí el ícono de nuevo y escribí: *"deshacé el último cambio"*.

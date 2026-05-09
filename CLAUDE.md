@@ -12,7 +12,36 @@ Los dueños del comercio (Sandra y Daniel, +60) van a pedirte cambios en lenguaj
 - "Cambiá el horario de atención"
 - "Agregá una promoción en la home"
 
-**Tu objetivo es hacer los cambios pedidos sin que tengan que aprobar nada ni copiar comandos.** Después del cambio, hacé commit y push automáticamente.
+**Tu objetivo es hacer los cambios pedidos sin que tengan que aprobar nada ni copiar comandos.**
+
+## Flujo de trabajo (IMPORTANTE)
+
+Cuando se abre el acceso directo, además de Claude se levanta un servidor local en `http://localhost:8000` y se abre el navegador con la página. Eso significa que **los dueños pueden ver los cambios en vivo refrescando el navegador (F5)**.
+
+El flujo es **preview-first**: vos editás, ellos miran, recién publicás cuando aprueban.
+
+### Después de cada cambio
+- **NO hagas `git commit` ni `git push` automáticamente.**
+- Avisá en una línea qué cambiaste y decile que refresquen el navegador para verlo.
+  - Ejemplo: *"Listo, cambié el banner. Refrescá el navegador (F5) para verlo. Si te gusta, decime 'subilo'."*
+
+### Cuando dicen "subilo" / "publicalo" / "me gusta, dale" / "subí los cambios"
+- Hacé `git add -A`, `git commit` con mensaje descriptivo en español, y `git push`.
+- Avisá: *"Subido. En 2-3 minutos se ve en colores.ar."*
+
+### Cuando dicen "no me gusta" / "sacalo" / "volvé como estaba" / "cancelalo"
+- Si los cambios **no están commiteados todavía** (caso común con este flujo): `git restore .` para descartar lo no commiteado, y `git clean -fd` solo si agregaste archivos nuevos en este turno.
+- Si **ya estaba pusheado** (commit anterior): `git revert <hash> --no-edit` y `git push`.
+- Avisá: *"Listo, lo dejé como estaba antes. Refrescá el navegador."*
+
+### Cuando dicen "deshacé el último cambio" después de haber subido algo
+- `git log --oneline -5` para ver los commits recientes.
+- `git revert <hash> --no-edit` del commit problemático.
+- `git push` para que el rollback se publique.
+
+### Si no está claro si quieren "preview" o "subir"
+- Si la frase es ambigua tipo "ahora cambialo de verdad", asumí que quieren publicarlo. No los hagas explicar.
+- Si están iterando ("ahora más rojo", "más grande", "movélo a la izquierda"), no subas nada hasta que lo aprueben explícitamente.
 
 ## Cómo hablarles
 
@@ -76,17 +105,13 @@ Cuando piden "cambiá la página con tema X" (navidad, mundial, día del niño, 
    - Tocar Bootstrap o jQuery (assets/bootstrap/, assets/js/jquery.min.js).
    - Modificar [CNAME](CNAME) o [robots.txt].
 
-## Antes de pushear: chequeo visual
+## Preview local
 
-Si hiciste cambios visuales, **abrí la página localmente** para revisar que no se rompió nada antes del push.
+Cuando se abre el acceso directo, ya hay un servidor local corriendo en `http://localhost:8000`. **No tenés que levantarlo vos.** Los dueños tienen el navegador apuntando a esa URL — solo tienen que apretar F5 después de cada cambio para ver el resultado.
 
-Para eso podés correr:
-```powershell
-python -m http.server 8000
-```
-y abrir http://localhost:8000
+Si por alguna razón el server no está corriendo (lo abrieron de forma manual), podés sugerirles que cierren todo y abran el acceso directo del escritorio. **Vos no necesitás correr `python -m http.server`** salvo que ellos lo pidan explícitamente.
 
-Si ves algo claramente roto (imagen no carga, sección desaparecida, layout descuadrado), avisá y revertí en lugar de pushear.
+Si tenés Playwright MCP disponible, después de un cambio visual navegá a `http://localhost:8000`, sacá un screenshot y revisalo antes de avisar que está listo. Si ves algo claramente roto (imagen no carga, sección desaparecida, layout descuadrado), avisá y descartá el cambio en lugar de dejarlo para que aprueben.
 
 ## Cómo deshacer cambios
 
