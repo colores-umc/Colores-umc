@@ -16,7 +16,7 @@ Los dueños del comercio (Sandra y Daniel, +60) van a pedirte cambios en lenguaj
 
 ## Flujo de trabajo (IMPORTANTE)
 
-Cuando se abre el acceso directo, además de Claude se levanta el dev server de Astro en `http://localhost:4321/Colores-umc/` y se abre el navegador con la página. **Los dueños pueden ver los cambios en vivo** — Astro tiene hot reload, así que muchas veces el cambio aparece sin tener que apretar F5. Si no se actualiza solo, refrescan con F5.
+Cuando se abre el acceso directo, además de Claude se levanta el dev server de Astro en `http://localhost:4321/` y se abre el navegador con la página. **Los dueños pueden ver los cambios en vivo** — Astro tiene hot reload, así que muchas veces el cambio aparece sin tener que apretar F5. Si no se actualiza solo, refrescan con F5.
 
 El flujo es **preview-first**: vos editás, ellos miran, recién publicás cuando aprueban.
 
@@ -27,7 +27,7 @@ El flujo es **preview-first**: vos editás, ellos miran, recién publicás cuand
 
 ### Cuando dicen "subilo" / "publicalo" / "me gusta, dale" / "subí los cambios"
 - Hacé `git add -A`, `git commit` con mensaje descriptivo en español, y `git push`.
-- Avisá: *"Subido. En 2-3 minutos GitHub Actions buildea y publica en colores-umc.github.io/Colores-umc/."*
+- Avisá: *"Subido. En 2-3 minutos GitHub Actions buildea y publica en colores.ar."*
 
 ### Cuando dicen "no me gusta" / "sacalo" / "volvé como estaba" / "cancelalo"
 - Si los cambios **no están commiteados todavía**: `git restore .` para descartar lo no commiteado, y `git clean -fd` solo si agregaste archivos nuevos en este turno (ojo de no borrar `node_modules/` accidentalmente — está en `.gitignore` así que `git clean` no debería tocarlo).
@@ -139,11 +139,11 @@ Cuando piden "cambiá la página con tema X" (navidad, mundial, día del niño, 
 
 ## Preview local
 
-Cuando se abre el acceso directo, ya hay un **dev server de Astro** corriendo en `http://localhost:4321/Colores-umc/`. **No tenés que levantarlo vos.** Astro tiene hot reload — cuando editás un `.astro`, el navegador se actualiza solo. Si no, F5.
+Cuando se abre el acceso directo, ya hay un **dev server de Astro** corriendo en `http://localhost:4321/`. **No tenés que levantarlo vos.** Astro tiene hot reload — cuando editás un `.astro`, el navegador se actualiza solo. Si no, F5.
 
 Si por alguna razón el server no está corriendo, podés sugerirles que cierren todo y abran el acceso directo del escritorio. **Vos no necesitás correr `npm run dev`** salvo que ellos lo pidan explícitamente.
 
-Si tenés Playwright MCP disponible, después de un cambio visual navegá a `http://localhost:4321/Colores-umc/`, sacá un screenshot y revisalo antes de avisar que está listo. Si ves algo claramente roto (imagen no carga, sección desaparecida, layout descuadrado), avisá y descartá el cambio.
+Si tenés Playwright MCP disponible, después de un cambio visual navegá a `http://localhost:4321/`, sacá un screenshot y revisalo antes de avisar que está listo. Si ves algo claramente roto (imagen no carga, sección desaparecida, layout descuadrado), avisá y descartá el cambio.
 
 ## Cómo deshacer cambios
 
@@ -171,13 +171,13 @@ NO incluyas líneas como "Co-Authored-By: Claude" ni emojis técnicos en los com
 
 ## Hosting
 
-El sitio está hosteado en **GitHub Pages** y se publica en `https://colores-umc.github.io/Colores-umc/`. **El deploy NO es directo desde main** — corre [.github/workflows/deploy.yml](.github/workflows/deploy.yml) en cada push: instala deps, hace `npm run build`, y publica el output `dist/`. Tarda 2-3 minutos.
+El sitio está hosteado en **GitHub Pages** con dominio custom `https://colores.ar` (configurado vía DNS + archivo `public/CNAME`). **El deploy NO es directo desde main** — corre [.github/workflows/deploy.yml](.github/workflows/deploy.yml) en cada push: instala deps, hace `npm run build`, y publica el output `dist/`. Tarda 2-3 minutos.
 
-> El dominio `colores.ar` está reclamado por otra cuenta de GitHub y por ahora no se puede usar. Cuando se libere, hay que crear un `CNAME` con el contenido `colores.ar`, ajustar `site` y `base` en [astro.config.mjs](astro.config.mjs) (probablemente `site: 'https://colores.ar'` y `base: '/'`), y configurar el custom domain en Settings → Pages. Mientras tanto, cuando avises que un cambio "ya se publicó", referite a `colores-umc.github.io/Colores-umc/`.
+> Si por alguna razón el dominio dejara de funcionar y tuvieras que volver a `colores-umc.github.io/Colores-umc/`: cambiá en [astro.config.mjs](astro.config.mjs) `site` a `'https://colores-umc.github.io'` y `base` a `'/Colores-umc'`, y borrá `public/CNAME`.
 
 ## Configuración y launcher
 
-- **`CNAME`** — Actualmente **no existe** en el repo (ver "Hosting").
+- **[public/CNAME](public/CNAME)** — Contiene `colores.ar`. Hace que GitHub Pages sirva el sitio en ese dominio custom. **NO lo borres** (rompe el dominio).
 - [abrir-claude.bat](abrir-claude.bat), [abrir-claude.ps1](abrir-claude.ps1), [crear-acceso-directo.ps1](crear-acceso-directo.ps1) — Scripts del launcher. Ahora **requieren Node.js instalado**. **NO los modifiques sin avisar** — si se rompen, los dueños no pueden trabajar. Cualquier cambio probalo end-to-end antes de subirlo.
 - [SETUP.md](SETUP.md) — Documenta el setup inicial (instalar Node, configurar GitHub Pages para deploy desde Actions, etc.). Para el desarrollador, no para los dueños.
 - [astro.config.mjs](astro.config.mjs) — Config de Astro. **No modifiques** `site` ni `base` sin pensarlo bien — cambian las URLs del sitio.

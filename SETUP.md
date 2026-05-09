@@ -10,14 +10,14 @@ Cuando los dueños hagan doble click en el acceso directo:
 
 1. Se chequea que **Node.js** y **VS Code** estén instalados.
 2. Si es la primera vez, corre `npm install` para bajar las dependencias (Astro + Tailwind, ~30-60 segundos).
-3. Se levanta el **dev server de Astro** en `http://localhost:4321/Colores-umc/` (en background).
+3. Se levanta el **dev server de Astro** en `http://localhost:4321/` (en background).
 4. Se abre el **navegador** mostrando la página.
 5. Se abre **VS Code** en la carpeta del repo.
 6. Queda una ventana de PowerShell esperando una tecla — al apretarla se apaga el dev server.
 
 Una vez abierto, los dueños le piden cambios a Claude desde el panel de la extensión de VS Code. Cada vez que Claude hace un cambio, **Astro tiene hot reload**, así que el navegador se actualiza solo (o con F5 si no).
 
-**El cambio NO se publica automáticamente.** Solo cuando dicen *"subilo"* / *"publicalo"*, Claude hace `git commit` + `git push`. Eso dispara el workflow de **GitHub Actions** ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)) que buildea con `npm run build` y publica `dist/` en GitHub Pages. Total: 2-3 minutos hasta verlo en `colores-umc.github.io/Colores-umc/`.
+**El cambio NO se publica automáticamente.** Solo cuando dicen *"subilo"* / *"publicalo"*, Claude hace `git commit` + `git push`. Eso dispara el workflow de **GitHub Actions** ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)) que buildea con `npm run build` y publica `dist/` en GitHub Pages. Total: 2-3 minutos hasta verlo en `colores.ar`.
 
 Si no les gusta, dicen *"sacalo"* y Claude descarta el cambio sin tocar el sitio en producción.
 
@@ -57,7 +57,7 @@ La config bloquea acciones destructivas (`push --force`, `reset --hard`, `rm -rf
 
 ## 3. Hosting y deploy
 
-El sitio está en **GitHub Pages** publicado en `https://colores-umc.github.io/Colores-umc/`.
+El sitio está en **GitHub Pages** con dominio custom **`https://colores.ar`** (configurado vía DNS en NIC.ar/Cloudflare + archivo [public/CNAME](public/CNAME) en el repo).
 
 **Importante: el modo de deploy cambió.** Antes GitHub Pages servía los `.html` del root de la rama `main` directamente. Ahora hay un build step (Astro genera `dist/`), entonces GitHub Pages tiene que estar configurado para **deploy desde GitHub Actions**, no desde una rama.
 
@@ -70,13 +70,13 @@ El sitio está en **GitHub Pages** publicado en `https://colores-umc.github.io/C
 
 ### Sobre el dominio `colores.ar`
 
-Estaba pensado como dominio principal, pero cuando intentamos asignarlo a este repo, GitHub avisó que ya está reclamado por otra cuenta. Mientras esa persona no lo libere, el sitio vive en la URL nativa de GitHub Pages.
+Ya está activo y configurado. Vive en [public/CNAME](public/CNAME) (Astro lo copia a `dist/` durante el build), y `astro.config.mjs` tiene `site: 'https://colores.ar'` + `base: '/'`.
 
-**Cuando se libere el dominio**:
-1. Crear un archivo `CNAME` en `public/` con el contenido `colores.ar` (en `public/` para que Astro lo copie a `dist/` durante el build).
-2. Editar [astro.config.mjs](astro.config.mjs): cambiar `site: 'https://colores.ar'` y `base: '/'`.
+**Si por alguna razón el dominio dejara de funcionar** y tuvieras que volver a la URL nativa de GitHub Pages (`colores-umc.github.io/Colores-umc/`):
+1. Borrar `public/CNAME`.
+2. Editar `astro.config.mjs`: `site: 'https://colores-umc.github.io'` y `base: '/Colores-umc'`.
 3. Commit + push.
-4. Ir a Settings → Pages → "Custom domain" → escribir `colores.ar` → Save.
+4. Settings → Pages → quitar custom domain.
 
 ---
 
@@ -132,7 +132,7 @@ Antes de dejarlo en producción, hacé esta prueba:
 1. Doble click en el acceso directo del escritorio.
 2. La primera vez, esperá a que termine `npm install` (mensaje "Dependencias instaladas").
 3. Verificá que:
-   - Se abrió el navegador en `localhost:4321/Colores-umc/` mostrando la página.
+   - Se abrió el navegador en `localhost:4321/` mostrando la página.
    - Se abrió VS Code en la carpeta correcta.
 4. En VS Code, abrí el panel de Claude (Ctrl+Esc o el ícono lateral).
 5. Pedile: *"cambiá el banner principal de la home con un mensaje de bienvenida navideño"*.
@@ -141,7 +141,7 @@ Antes de dejarlo en producción, hacé esta prueba:
    - El cambio se ve.
    - **No** se hizo `git commit` ni `git push` (correr `git status` para confirmar).
 8. Pedile: *"subilo"*.
-9. Verificá que ahora sí hizo `git commit` + `git push`. Andá a `https://github.com/coloresumc/Colores-umc/actions` y mirá que el workflow "Deploy a GitHub Pages" esté corriendo. Esperá 2-3 minutos y revisá `colores-umc.github.io/Colores-umc/` para confirmar.
+9. Verificá que ahora sí hizo `git commit` + `git push`. Andá a `https://github.com/coloresumc/Colores-umc/actions` y mirá que el workflow "Deploy a GitHub Pages" esté corriendo. Esperá 2-3 minutos y revisá `colores.ar` para confirmar.
 10. Pedile: *"deshacé el último cambio"*.
 11. Verificá que hizo `git revert` + `git push` y se relanzó el workflow → el sitio vuelve al estado anterior.
 
@@ -164,7 +164,7 @@ Una vez que todo esté configurado, mandales esto:
 >    - *"Cambiá el horario de atención a 9 a 18"*
 >    - *"Agregá una promoción de fin de año"*
 > 5. Cuando Claude termine, **mirá el navegador** — debería actualizarse solo. Si no, F5.
-> 6. Si te gusta, decile a Claude: **"subilo"** (o "publicalo"). Va a tardar 2-3 minutos en aparecer en `colores-umc.github.io/Colores-umc/`.
+> 6. Si te gusta, decile a Claude: **"subilo"** (o "publicalo"). Va a tardar 2-3 minutos en aparecer en `colores.ar`.
 > 7. Si **no** te gusta, decile: **"sacalo"** o "volvé como estaba". El cambio no llega al sitio público.
 >
 > **Cuando termines de trabajar:**

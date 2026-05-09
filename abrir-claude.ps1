@@ -11,7 +11,7 @@ $repoPath = $PSScriptRoot
 Set-Location $repoPath
 
 $port = 4321
-$basePath = '/Colores-umc'
+$basePath = ''
 $url = "http://localhost:$port$basePath/"
 $devLog = Join-Path $env:TEMP 'colores-dev.log'
 $devErrLog = Join-Path $env:TEMP 'colores-dev-err.log'
