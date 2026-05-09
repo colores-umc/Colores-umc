@@ -41,11 +41,68 @@ const {
   </head>
   <body class="bg-white text-dark antialiased">
     <Header />
+    <div class="cinta-mayo" aria-hidden="true">
+      <span class="cinta-mayo-sol">☀</span>
+      <span class="cinta-mayo-texto">Semana de Mayo</span>
+      <span class="cinta-mayo-sol">☀</span>
+    </div>
     <main class="pt-16">
       <slot />
     </main>
     <Footer />
     <Lightbox />
+
+    <style>
+      .cinta-mayo {
+        position: fixed;
+        top: 42px;
+        right: -82px;
+        width: 320px;
+        transform: rotate(45deg);
+        background: linear-gradient(
+          to bottom,
+          #74acdf 0,
+          #74acdf 28%,
+          #ffffff 28%,
+          #ffffff 72%,
+          #74acdf 72%,
+          #74acdf 100%
+        );
+        color: #1a3a6c;
+        text-align: center;
+        padding: 14px 0;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 1.5px;
+        z-index: 100;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+        pointer-events: none;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-family: 'Montserrat', sans-serif;
+      }
+      .cinta-mayo-sol {
+        color: #f4b400;
+        font-size: 1.25rem;
+        text-shadow: 0 0 2px #c08400;
+      }
+      @media (max-width: 640px) {
+        .cinta-mayo {
+          top: 30px;
+          right: -90px;
+          width: 260px;
+          padding: 10px 0;
+          font-size: 0.7rem;
+          letter-spacing: 1px;
+        }
+        .cinta-mayo-sol {
+          font-size: 1rem;
+        }
+      }
+    </style>
 
     <script>
       // Animaciones reveal-on-scroll usando IntersectionObserver
