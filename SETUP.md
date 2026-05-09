@@ -90,9 +90,9 @@ powershell -ExecutionPolicy Bypass -File "C:\Users\Sandra Packosky\Desktop\pagin
 ```
 
 Esto crea **"Modificar pagina Colores.lnk"** en el escritorio. Cuando hacen doble click:
-1. Levanta servidor local (`http://localhost:8000`).
-2. Abre el navegador mostrando la página.
-3. Abre VS Code en la carpeta del repo.
+1. Levanta un mini servidor local en PowerShell puro ([serve-local.ps1](serve-local.ps1)) en `http://localhost:8000`. **No requiere Python, Node ni nada instalado** — usa `System.Net.HttpListener` que viene con Windows.
+2. Abre el navegador mostrando la página local.
+3. Abre VS Code en una ventana nueva apuntando a la carpeta del repo (con `--new-window`, así no se pega a una ventana ya abierta en otra carpeta y las settings de `.claude/settings.json` se aplican bien).
 4. Deja una ventanita de PowerShell esperando tecla para apagar el preview cuando terminen.
 
 > Si querés cambiar el ícono: click derecho sobre el shortcut → Propiedades → "Cambiar icono".
